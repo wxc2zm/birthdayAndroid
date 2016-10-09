@@ -56,7 +56,7 @@ public class BirthdayDB {
 			values.put("mobile", user.getMobile());
 			values.put("birthday", user.getBirthday());
 			values.put("address", user.getAddress());
-			values.put("memo", user.getMemo());
+			values.put("memo", "无");
 			db.insert("User", null, values);
 		}
 	}

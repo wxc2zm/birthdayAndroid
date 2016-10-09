@@ -26,7 +26,7 @@ public class Utility {
 				User user = new User();
 				user.setId(element.elementText("id"));
 				user.setName(element.elementText("name"));
-				user.setGender(element.elementText("gener"));
+				user.setGender(element.elementText("gender"));
 				user.setMobile(element.elementText("mobile"));
 				user.setBirthday(element.elementText("birthday"));
 				user.setAddress(element.elementText("address"));
