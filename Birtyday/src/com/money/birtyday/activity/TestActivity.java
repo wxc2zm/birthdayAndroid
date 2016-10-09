@@ -15,6 +15,7 @@ import com.money.birtyday.util.Utility;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -22,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class TestActivity extends Activity {
-	
+	private static final String ACTIVITY_TAG="TestActivity";
 	private ProgressDialog progressDialog;
 	private BirthdayDB birthdayDB;
 	private ListView listView;
@@ -46,13 +47,7 @@ public class TestActivity extends Activity {
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		birthdayDB = BirthdayDB.getInstance(this);
-		/*
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
-				
-			}
-		});*/
+		
 		queryUsers();
 	}
 	
@@ -60,7 +55,8 @@ public class TestActivity extends Activity {
 	private void queryUsers() {
 		userList = birthdayDB.loadUser();
 		if (userList.size() > 0) {
-			userList.clear();
+			//userList.clear();
+			//Log.i(TestActivity.ACTIVITY_TAG, "列表有大小");
 			for (User user: userList) {
 				dataList.add(user.getName());
 			}
@@ -73,7 +69,7 @@ public class TestActivity extends Activity {
 		}
 	}
 	private void queryFromServer() {
-		String address = "http://119.10.54.179:8080/etour/zndl/110000/resource_package/1alpkgy/user.xml";
+		String address = "http://192.168.78.166:8080/birthday/xml/user.xml";
 		showProgressDialog();
 		//Toast.makeText(TestActivity.this, "开始下载", Toast.LENGTH_SHORT).show();
 		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
@@ -84,7 +80,7 @@ public class TestActivity extends Activity {
 				try {
 					
 					result = Utility.handleUserResponse(birthdayDB, response);
-					Toast.makeText(TestActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(TestActivity.this, "下载完成", Toast.LENGTH_LONG).show();
 				} catch (DocumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

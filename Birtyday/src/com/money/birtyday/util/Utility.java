@@ -24,7 +24,7 @@ public class Utility {
 			while (iterator.hasNext()){
 				Element element = (Element) iterator.next();
 				User user = new User();
-				user.setId(element.elementText("id"));
+				//user.setId(element.elementText("id"));
 				user.setName(element.elementText("name"));
 				user.setGender(element.elementText("gender"));
 				user.setMobile(element.elementText("mobile"));

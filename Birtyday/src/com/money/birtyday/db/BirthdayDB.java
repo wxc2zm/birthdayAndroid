@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class BirthdayDB {
 	
+	
 	/**
 	 * 数据库名
 	 */
@@ -20,7 +21,7 @@ public class BirthdayDB {
 	/**
 	 * 数据库版本
 	 */
-	public static final int VERSION = 1;
+	public static final int VERSION = 4;
 	
 	private static BirthdayDB birthdayDB;
 	
@@ -50,7 +51,6 @@ public class BirthdayDB {
 	public void saveUser(User user) {
 		if (user != null) {
 			ContentValues values = new ContentValues();
-			values.put("id", user.getId());
 			values.put("name", user.getName());
 			values.put("gender", user.getGender());
 			values.put("mobile", user.getMobile());
@@ -71,13 +71,13 @@ public class BirthdayDB {
 		if (cursor.moveToFirst()) {
 			do {
 				User user = new User();
-				user.setId(cursor.getString(cursor.getColumnIndex("id")));
 				user.setName(cursor.getString(cursor.getColumnIndex("name")));
 				user.setGender(cursor.getString(cursor.getColumnIndex("gender")));
 				user.setMobile(cursor.getString(cursor.getColumnIndex("mobile")));
 				user.setBirthday(cursor.getString(cursor.getColumnIndex("birthday")));
 				user.setAddress(cursor.getString(cursor.getColumnIndex("address")));
 				user.setMemo(cursor.getString(cursor.getColumnIndex("memo")));
+				list.add(user);
 			} while (cursor.moveToNext());
 		}
 		return list;
