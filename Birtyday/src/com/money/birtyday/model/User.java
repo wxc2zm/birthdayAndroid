@@ -1,11 +1,13 @@
 package com.money.birtyday.model;
 
+import java.util.Date;
+
 public class User {
 	private String id;
 	private String name;
-	private String gender;
+	private boolean gender;
 	private String mobile;
-	private String birthday;
+	private Date birthday;
 	private String address;
 	private String memo;
 	
@@ -21,10 +23,10 @@ public class User {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getGender() {
+	public boolean getGender() {
 		return gender;
 	}
-	public void setGender(String gender) {
+	public void isGender(boolean gender) {
 		this.gender = gender;
 	}
 	public String getMobile() {
@@ -33,10 +35,10 @@ public class User {
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
 	}
-	public String getBirthday() {
+	public Date getBirthday() {
 		return birthday;
 	}
-	public void setBirthday(String birthday) {
+	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
 	}
 	public String getAddress() {

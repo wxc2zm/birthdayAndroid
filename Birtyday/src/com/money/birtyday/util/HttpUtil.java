@@ -4,20 +4,33 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.os.Environment;
+import android.util.Log;
 
 
 /**
- * 从后台下载文件
+ * 与后台交互
  * @author Administrator
  *
  */
 public class HttpUtil {
+	private final static String TAG = "HttpUtil";
+	private static final String serviceNameSpace = "http://service.appInterface.xfgl.money.com/";
 	
+	/**
+	 * 下载文件
+	 */
 	public static void sendHttpRequest() {
 		new Thread(new Runnable() {
 			private String xmlPath = Environment.getExternalStorageDirectory() + "/birthday/xml";
@@ -26,10 +39,11 @@ public class HttpUtil {
 				HttpURLConnection connection = null;
 				if (!(new File(xmlPath)).exists()) {
 					new File(xmlPath).mkdirs();
+					
 				}
 				try {
 					
-					URL url = new URL("http://192.168.2.105:8080/birthday/xml/user.xml");
+					URL url = new URL("http://192.168.2.103:8080/birthday/xml/user.xml");
 					connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
@@ -37,7 +51,7 @@ public class HttpUtil {
 					
 					InputStream inputStream = connection.getInputStream();
 					FileOutputStream outputStream = new FileOutputStream(xmlPath + "/user.xml");
-					
+					Log.i(HttpUtil.TAG, outputStream.toString());
 					BufferedInputStream in = null;
 					BufferedOutputStream out = null;
 					
@@ -45,11 +59,10 @@ public class HttpUtil {
 					try {
 						in = new BufferedInputStream(inputStream, buffer.length);
 						out = new BufferedOutputStream(outputStream, buffer.length);
-						int total = 0;
+				
 						
 						for (int byteRead = 0; (byteRead = in.read(buffer)) != -1; ) {
 							out.write(buffer, 0, byteRead);
-							total += byteRead;
 						}
 					} finally {
 						in.close();
@@ -66,4 +79,48 @@ public class HttpUtil {
 			}
 		}).start();
 	}
+	/**
+	 * 与后台进行交互
+	 */
+	public static void webService(final Object[] data, final String method, final HttpCallbackListener listener) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// 实例化SoapObject对象
+				SoapObject request = new SoapObject(serviceNameSpace,
+						method);
+				int  number= 0;
+				for (Object d: data) {
+					request.addProperty("arg" + number, d);
+					number++;
+					
+				}
+				// 获得序列化Envelope
+				SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+				envelope.bodyOut = request;
+				envelope.dotNet = false;
+
+				HttpTransportSE httpTransportSE = new HttpTransportSE(
+						"http://192.168.2.103:8080/birthday/services/AppInterfaceService?wsdl");
+				try {
+					httpTransportSE.call(null, envelope);
+					Object response = envelope.getResponse();
+					response = envelope.getResponse();
+					if (response != null) {
+						listener.onSuccess(response.toString());
+					}
+					
+				} catch (IOException e) {
+					listener.onError(e);
+					e.printStackTrace();
+				} catch (XmlPullParserException e) {
+					listener.onError(e);
+					e.printStackTrace();
+				}
+				
+			}
+		}).start();
+	}
+	
 }

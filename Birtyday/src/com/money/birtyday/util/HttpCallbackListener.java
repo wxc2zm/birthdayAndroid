@@ -2,7 +2,7 @@ package com.money.birtyday.util;
 
 public interface HttpCallbackListener {
 	
-	void onFinish(String response);
+	void onSuccess(String respose);
 	
 	void onError(Exception e);
 }

@@ -8,15 +8,22 @@ import org.dom4j.DocumentException;
 
 import com.money.birtyday.R;
 import com.money.birtyday.model.User;
+import com.money.birtyday.util.HttpCallbackListener;
 import com.money.birtyday.util.HttpUtil;
 import com.money.birtyday.util.Utility;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +36,8 @@ public class UserActivity extends Activity {
 	private TextView titleText;
 	
 	private ArrayAdapter<String> adapter;
+	
+	private User user;
 	
 	private List<String> dataList = new ArrayList<String>();
 	private String xmlPath = Environment.getExternalStorageDirectory() + "/birthday/xml/user.xml";
@@ -45,31 +54,62 @@ public class UserActivity extends Activity {
 		listView = (ListView) findViewById(R.id.list_view);
 		titleText = (TextView) findViewById(R.id.title_text);
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
+		adapter.notifyDataSetChanged();
+		listView.setSelection(0);
+		titleText.setTag("客户管理");
 		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				user = userList.get(position);
+				Intent intent = new Intent(UserActivity.this, EditActivity.class);
+				intent.putExtra("id", user.getId());
+				startActivity(intent);
+			}
+			
+		});
 		queryUsers();
 	}
 
 	private void queryUsers() {
-		if (!new File(xmlPath).exists()) {
-			showProgressDialog();
-			HttpUtil.sendHttpRequest();
-			closeProgressDialog();
-			queryUsers();
-		}
-		try {
-			userList = Utility.handleUserResponse(xmlPath);
-			Log.i(UserActivity.ACTIVITY_TAG, userList.toString());
-		} catch (DocumentException e) {
-			e.printStackTrace();
-		}
-		if (userList.size() > 0) {
-			for (User user: userList) {
-				dataList.add(user.getName());
+		long clientTime = new File(xmlPath).lastModified();
+		Object[] data = {clientTime};
+		HttpUtil.webService(data, "compareFileTime", new HttpCallbackListener() {
+			
+			@Override
+			public void onSuccess(String respose) {
+				int number = Utility.resolveResult(respose);
+				if(number == 0002) {
+					HttpUtil.sendHttpRequest();
+				}
+				//通过runOnUiThread()回到主线程处理逻辑
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							userList = Utility.handleUserResponse(xmlPath);
+							Log.i(UserActivity.ACTIVITY_TAG, userList.toString());
+						} catch (DocumentException e) {
+							e.printStackTrace();
+						}
+						if (userList.size() > 0) {
+							for (User user: userList) {
+								dataList.add(user.getName());
+							}
+							
+						}
+					}
+				});
 			}
-			adapter.notifyDataSetChanged();
-			listView.setSelection(0);
-			titleText.setTag("客户管理");
-		}
+			
+			@Override
+			public void onError(Exception e) {
+				
+			}
+		});
+		
 	}
 	
 	/**
