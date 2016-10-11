@@ -1,6 +1,7 @@
 package com.money.birtyday.activity;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class UserActivity extends Activity {
-	private static final String ACTIVITY_TAG="TestActivity";
+	private static final String TAG="UserActivity";
 	
 	private ProgressDialog progressDialog;
 	private ListView listView;
@@ -74,34 +75,32 @@ public class UserActivity extends Activity {
 	}
 
 	private void queryUsers() {
-		long clientTime = new File(xmlPath).lastModified();
-		Object[] data = {clientTime};
-		HttpUtil.webService(data, "compareFileTime", new HttpCallbackListener() {
+		long clientFile = new File(xmlPath).length();
+		Object[] data = {clientFile};
+		HttpUtil.webService(data, "compareFile", new HttpCallbackListener() {
 			
 			@Override
 			public void onSuccess(String respose) {
+				Log.i(UserActivity.TAG, respose);
 				int number = Utility.resolveResult(respose);
 				if(number == 0002) {
 					HttpUtil.sendHttpRequest();
 				}
-				//通过runOnUiThread()回到主线程处理逻辑
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							userList = Utility.handleUserResponse(xmlPath);
-							Log.i(UserActivity.ACTIVITY_TAG, userList.toString());
-						} catch (DocumentException e) {
-							e.printStackTrace();
-						}
-						if (userList.size() > 0) {
-							for (User user: userList) {
-								dataList.add(user.getName());
-							}
-							
-						}
+				try {
+					userList = Utility.handleUserResponse(xmlPath);
+				} catch (DocumentException e) {
+					e.printStackTrace();
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (userList.size() > 0) {
+					for (User user: userList) {
+						dataList.add(user.getName());
 					}
-				});
+					
+				}
+				
 			}
 			
 			@Override

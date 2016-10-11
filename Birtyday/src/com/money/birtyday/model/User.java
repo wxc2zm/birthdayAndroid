@@ -23,10 +23,10 @@ public class User {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public boolean getGender() {
+	public boolean isGender() {
 		return gender;
 	}
-	public void isGender(boolean gender) {
+	public void setGender(boolean gender) {
 		this.gender = gender;
 	}
 	public String getMobile() {

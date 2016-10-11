@@ -1,5 +1,6 @@
 package com.money.birtyday.activity;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +43,7 @@ public class EditActivity extends Activity {
 	
 	private List<User> list;
 	
-	private User user;
+	private User user = new User();
 	
 	private String xmlPath = Environment.getExternalStorageDirectory() + "/birthday/xml/user.xml";
 	
@@ -81,21 +82,24 @@ public class EditActivity extends Activity {
 			list = Utility.handleUserResponse(xmlPath);
 			for (User user: list) {
 				if (user.getId().equals(id)) {
-					editName.setHint(user.getName());
-					if (user.getGender())
-						editGender.setHint("男");
+					editName.setText(user.getName());
+					if (user.isGender())
+						editGender.setText("男");
 					else {
-						editGender.setHint("女");
+						editGender.setText("女");
 					}
-					editMobile.setHint(user.getMobile());
+					editMobile.setText(user.getMobile());
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-					editBirthday.setHint(sdf.format(user.getBirthday()));
-					editAddress.setHint(user.getAddress());
-					editMemo.setHint(user.getMemo());
+					editBirthday.setText(sdf.format(user.getBirthday()));
+					editAddress.setText(user.getAddress());
+					editMemo.setText(user.getMemo());
 					break;
 				}
 			}
 		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -105,23 +109,37 @@ public class EditActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				Log.i(EditActivity.TAG, editName.getText().toString());
+				Log.i(EditActivity.TAG, editGender.getText().toString());
+				Log.i(EditActivity.TAG, "11111111111111111");
 				user.setName(editName.getText().toString());
+				Log.i(EditActivity.TAG, editGender.getText().toString());
 				if (editGender.getText().toString().equals("男")) {
-					user.isGender(true);
+					user.setGender(true);
 				} else {
-					user.isGender(false);
+					user.setGender(false);
 				}
-					
+				Log.i(EditActivity.TAG, editMobile.getText().toString());	
 				user.setMobile(editMobile.getText().toString());
-				Date date = new Date(editBirthday.getText().toString());
-				user.setBirthday(date);
+				Log.i(EditActivity.TAG, editBirthday.getText().toString());
+				try {
+					user.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(editBirthday.getText().toString()));
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				Log.i(EditActivity.TAG, editAddress.getText().toString());
 				user.setAddress(editAddress.getText().toString());
-				user.setMemo(editMemo.getText().toString());
+				user.setMemo("无");
+				
 				Object[] data = {user};
+				//Log.i(EditActivity.TAG, data.toString());
+				
 				HttpUtil.webService(data, "update", new HttpCallbackListener() {
 					
 					@Override
 					public void onSuccess(String respose) {
+						Log.i(EditActivity.TAG, respose);
 						Message message = new Message();
 						message.what = Utility.resolveResult(respose);
 						myHandler.sendMessage(message);

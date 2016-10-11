@@ -1,6 +1,8 @@
 package com.money.birtyday.util;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -11,17 +13,22 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import android.util.Log;
+
+import com.money.birtyday.activity.LoginActivity;
 import com.money.birtyday.model.User;
 
 public class Utility {
 	
+	private static final String TAG = "utility";
 	/**
 	 * 解析xml文件
 	 * @param response
 	 * @return
 	 * @throws DocumentException
+	 * @throws ParseException 
 	 */
-	public static List<User> handleUserResponse(String response) throws DocumentException{
+	public static List<User> handleUserResponse(String response) throws DocumentException, ParseException{
 		
 			List<User> list = new ArrayList<User>();
 			SAXReader reader = new SAXReader();
@@ -35,14 +42,17 @@ public class Utility {
 				User user = new User();
 				user.setId(element.elementText("id"));
 				user.setName(element.elementText("name"));
+				Log.i(Utility.TAG, element.elementText("gender"));
 				if (element.elementText("gender").equals("男")) {
-					user.isGender(true);
+					user.setGender(true);
 				} else {
-					user.isGender(false);
+					user.setGender(false);
 				}
 				user.setMobile(element.elementText("mobile"));
-				Date date = new Date(element.elementText("birthday"));
-				user.setBirthday(date);
+				Log.i(Utility.TAG, element.elementText("birthday"));
+				//Date date = new Date(Date.parse(element.elementText("birthday").split(" ")[0]));
+				//Log.i(Utility.TAG, date.toString());
+				user.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(element.elementText("birthday")));
 				user.setAddress(element.elementText("address"));
 				user.setMemo(element.elementText("memo"));
 				list.add(user);

@@ -43,7 +43,7 @@ public class HttpUtil {
 				}
 				try {
 					
-					URL url = new URL("http://192.168.2.103:8080/birthday/xml/user.xml");
+					URL url = new URL("http://192.168.78.166:8080/birthday/xml/user.xml");
 					connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
@@ -88,25 +88,31 @@ public class HttpUtil {
 			@Override
 			public void run() {
 				// 实例化SoapObject对象
+				Log.i(HttpUtil.TAG, "运行到number");
 				SoapObject request = new SoapObject(serviceNameSpace,
 						method);
 				int  number= 0;
+				
 				for (Object d: data) {
 					request.addProperty("arg" + number, d);
 					number++;
 					
 				}
+				Log.i(HttpUtil.TAG, "运行完number");
 				// 获得序列化Envelope
 				SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 				envelope.bodyOut = request;
 				envelope.dotNet = false;
 
 				HttpTransportSE httpTransportSE = new HttpTransportSE(
-						"http://192.168.2.103:8080/birthday/services/AppInterfaceService?wsdl");
+						"http://192.168.78.166:8080/birthday/services/AppInterfaceService?wsdl");
 				try {
+					Log.i(HttpUtil.TAG, "开始向后台发数据");
 					httpTransportSE.call(null, envelope);
+					Log.i(HttpUtil.TAG, "向后台发数据完成");
 					Object response = envelope.getResponse();
 					response = envelope.getResponse();
+					Log.i(HttpUtil.TAG, response.toString());
 					if (response != null) {
 						listener.onSuccess(response.toString());
 					}
